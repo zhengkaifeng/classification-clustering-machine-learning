@@ -1,0 +1,117 @@
+\documentclass[letterpaper,hidelinks]{article}
+\usepackage[left=1in,right=1in,top=1in,bottom=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{hyperref}
+\usepackage{subfigure}
+\lstset{language=R,%
+	basicstyle=\footnotesize,
+	%basicstyle=\color{red},
+	breaklines=true,%
+	showstringspaces=false,%without this there will be a symbol in the places where there is a space
+	numbers=left,%
+	numbersep=9pt, % this defines how far the numbers are from the text
+	%emph=[2]{word1,word2}, emphstyle=[2]{style},    
+}
+ 
+\numberwithin{equation}{section}
+\author{KK Feng}
+\title{Histogram Clustering with Expectation-Maximization on SAR Images}
+\date{}
+\begin{document}
+\maketitle
+\section{Problem}
+\subsection{Description}
+Image segmentation\footnote{Image segmentation refers to the task of dividing an input image into regions of pixels that belong together.} problem for synthetic aperture radar (SAR) images\footnote{This type of image is well-suited for segmentation by histogram clustering, because the local intensity distributions provide distinctive information about the segments.}.
+\subsection{Data}
+\begin{itemize}
+\item \textbf{histograms.bin}: the histograms extracted from an 800 by 800 grayscale image per following procedure
+\begin{enumerate}
+\item Select a subset of pixels.
+\item Place a rectangle of fixed radius around the site pixel.
+\item Select all pixels within the rectangle and sort their intensity values into a histogram.
+\end{enumerate}
+\end{itemize}
+\subsection{Idea}
+\begin{itemize}
+\item Extract the histograms from the image
+\begin{itemize}
+\item The histograms were drawn at the nodes of a 4-by-4 pixel grid, therefore there are 200 by 200 = 40000 histograms. 
+\item Each histogram was drawn within a rectangle of edge length 11 pixels, so each histogram contains 11 by 11 = 121 values.
+\end{itemize}
+\item Apply the Expectation-Maximization algorithm and a finite mixture of multinomial distributions.
+\end{itemize}
+
+\section{Solution}
+\subsection{Plot}
+We have an integer $K$ which specifies the number of clusters and a threshold parameter $\tau$ which is used for the termination of the iteration. For $K=3,4,5$, we tested $\tau$ for following values
+\begin{align}
+1,~0.1,~0.01,~0.001,~0.0001,~0.00001,0.000001,0.0000001
+\end{align}
+Then we visualize the clustering results, which are the numbers of clusters assigned to the histograms, as an image. Note that when use $image$ function in R, we need to rotate the axes to get the images to the right position. From the figures below, we can see that the larger $K$ is, the smaller $\tau$ the algorithm requires to get a convergent solution.
+\begin{figure}
+\centering
+\subfigure[$\tau$=1]{\includegraphics[width=1.8in]{13}}
+\hspace{0.1in}
+\subfigure[$\tau$=0.1]{\includegraphics[width=1.8in]{14}}
+\\
+\subfigure[$\tau$=0.01]{\includegraphics[width=1.8in]{15}}
+\hspace{0.1in}
+\subfigure[$\tau$=0.001]{\includegraphics[width=1.8in]{16}}
+\\
+\subfigure[$\tau$=0.0001]{\includegraphics[width=1.8in]{17}}
+\hspace{0.1in}
+\subfigure[$\tau$=0.00001]{\includegraphics[width=1.8in]{18}}
+\\
+\subfigure[$\tau$=0.000001]{\includegraphics[width=1.8in]{19}}
+\hspace{0.1in}
+\subfigure[$\tau$=0.0000001]{\includegraphics[width=1.8in]{110}}
+\caption{K=3}
+\end{figure}
+\begin{figure}
+\centering
+\subfigure[$\tau$=1]{\includegraphics[width=1.8in]{23}}
+\hspace{0.1in}
+\subfigure[$\tau$=0.1]{\includegraphics[width=1.8in]{24}}
+\\
+\subfigure[$\tau$=0.01]{\includegraphics[width=1.8in]{25}}
+\hspace{0.1in}
+\subfigure[$\tau$=0.001]{\includegraphics[width=1.8in]{26}}
+\\
+\subfigure[$\tau$=0.0001]{\includegraphics[width=1.8in]{27}}
+\hspace{0.1in}
+\subfigure[$\tau$=0.00001]{\includegraphics[width=1.8in]{28}}
+\\
+\subfigure[$\tau$=0.000001]{\includegraphics[width=1.8in]{29}}
+\hspace{0.1in}
+\subfigure[$\tau$=0.0000001]{\includegraphics[width=1.8in]{210}}
+\caption{K=4}
+\end{figure}
+\begin{figure}
+\centering
+\subfigure[$\tau$=1]{\includegraphics[width=1.8in]{33}}
+\hspace{0.1in}
+\subfigure[$\tau$=0.1]{\includegraphics[width=1.8in]{34}}
+\\
+\subfigure[$\tau$=0.01]{\includegraphics[width=1.8in]{35}}
+\hspace{0.1in}
+\subfigure[$\tau$=0.001]{\includegraphics[width=1.8in]{36}}
+\\
+\subfigure[$\tau$=0.0001]{\includegraphics[width=1.8in]{37}}
+\hspace{0.1in}
+\subfigure[$\tau$=0.00001]{\includegraphics[width=1.8in]{38}}
+\\
+\subfigure[$\tau$=0.000001]{\includegraphics[width=1.8in]{39}}
+\hspace{0.1in}
+\subfigure[$\tau$=0.0000001]{\includegraphics[width=1.8in]{310}}
+\caption{K=5}
+\end{figure}
+\subsection{Code}
+\lstinputlisting{em.R}
+\end{document}
