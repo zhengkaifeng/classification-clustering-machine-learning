@@ -1,0 +1,74 @@
+\documentclass[letterpaper,hidelinks]{article}
+\usepackage[left=1in,right=1in,top=1in,bottom=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{hyperref}
+\lstset{language=R,%
+	basicstyle=\footnotesize,
+	%basicstyle=\color{red},
+	breaklines=true,%
+	showstringspaces=false,%without this there will be a symbol in the places where there is a space
+	numbers=left,%
+	numbersep=9pt, % this defines how far the numbers are from the text
+	%emph=[2]{word1,word2}, emphstyle=[2]{style},    
+}
+ 
+\numberwithin{equation}{section}
+\author{KK Feng}
+\title{AdaBoost and K-Fold Cross-Validation on Hand-Written Digits}
+\date{}
+\begin{document}
+\maketitle
+\section{Problem}
+\subsection{Description}
+Classify grayscale images for hand-written digits.
+\subsection{Data}
+\begin{itemize}
+\item \textbf{uspsdata.txt}: contains a matrix with one data point (= vector of length 256) per row. The 256-vector in each row represents a 16 by 16 image of a handwritten number.
+\item \textbf{uspscl.txt}: contains the corresponding class labels.
+The data contains two classes - the digits 5 and 6 - so the class labels are stored as -1 and +1, respectively.
+\end{itemize}
+\subsection{Idea}
+\begin{itemize}
+\item Adaptive Boosting algorithm with decision stumps as weak learners.
+\item K-Fold Cross-Validation to tune the number of weak learners.
+\end{itemize}
+
+\section{Solution}
+\subsection{Implementation}
+To train decision stumps, we implement following algorithm
+\begin{algorithm}
+\caption{A simple training algorithm for decision stumps}
+\begin{algorithmic}[1]
+\REQUIRE
+Data $X=(x_1,\cdots,x_n)$ where $x_i\in\mathbb{R}^d$, weight $w$, label $y$
+\FOR{$j=1:d$}
+\STATE{Sort samples $x_i$ in ascending order along dimension $j$}
+\FOR{$i=1:n$}
+\STATE{Compute cumulative sums $cum_{i}^j=\sum_{k=1}^iw_ky_k$}
+\ENDFOR
+\STATE{Threshold $\theta_j$ is obtained at the extrema of $cum_{i}^j$}
+\STATE{Label $m_j$ is obtained from the sign of cumulative sum at extrema}
+\STATE{Compute the error rate of classifier $(\theta_j,m_j)$ along dimension j}
+\ENDFOR
+\STATE{Find optimal $j^*,\theta^*$ in which the classifier $(\theta_j,m_j)$ gives the minimum error rate}
+\end{algorithmic}
+\end{algorithm}\\
+(Reference: \href{http://ais.informatik.uni-freiburg.de/teaching/ws09/robotics2/pdfs/rob2-10-adaboost.pdf}{http://ais.informatik.uni-freiburg.de/teaching/ws09/robotics2/pdfs/rob2-10-adaboost.pdf} )\\\\
+
+\subsection{Plot}
+Please find the plots for training error and test error as a function of b (number of weak learners) in the following. Note that the cross validation error is the average of errors of 5 folds.
+\begin{center}
+\includegraphics[width=16cm]{1}
+\end{center}
+From the plot, we can see that for the USPS data and using 5-fold cross validation, the training error reaches bottom of the curve when we use approximately 20 weak learners, and the training error curve become flat when number of weak learners go larger than 20. On the other hand, we need around 40 weak learners to ensure that we have the optimal test error. If number of weak learners go larger than 40, the test error will just have small oscillations around the optimal test error we get at 40 weak learners.
+
+\subsection{Code}
+\lstinputlisting{adaboost.R}
+\end{document}
